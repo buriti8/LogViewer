@@ -1,4 +1,5 @@
 {
+    "Logs": "Logs",
     "Date": "Fecha",
     "The list of logs is empty!": "La lista del log está vacía!",
     "All": "Todos",
@@ -9,5 +10,26 @@
     "Warning": "Advertencia",
     "Notice": "Aviso",
     "Info": "Info",
-    "Debug": "Debug"
+    "Debug": "Debug",
+    "Actions": "Acciones",
+    "Levels": "Niveles",
+    "Log info": "Información de registro",
+    "File path": "Ruta del archivo",
+    "Log entries": "Entradas de registro",
+    "Size": "Tamaño",
+    "Created at": "Fecha de creación",
+    "Updated at": "Fecha de actualización",
+    "ENV": "Contexto",
+    "Level": "Nivel",
+    "Time": "Fecha",
+    "Header": "Contenido",
+    "Download": "Descargar",
+    "Delete": "Eliminar",
+    "Cancel": "Cancelar",
+    "Delete log file": "Eliminar archivo de Log",
+    "Are you sure you want to delete this log file: :date ?": "¿Está seguro de que desea eliminar este archivo de Log: :date ?",
+    "This File": "este archivo de Log",
+    "Type here to search": "Escriba aquí para buscar",
+    ":count results": ":count resultados",
+    "entries": "entradas"
 }
