@@ -1,7 +1,7 @@
 {
-    "name":        "arcanedev/log-viewer",
-    "description": "Provides a Log Viewer for Laravel",
-    "keywords":    ["arcanedev", "arcanesoft", "laravel", "log", "log viewer", "log-viewer", "logviewer"],
+    "name":        "buriti8/log-viewer",
+    "description": "Fork from arcanedev/log-viewer. Provides a Log Viewer for Laravel",
+    "keywords":    ["buriti8", "arcanedev", "arcanesoft", "laravel", "log", "log viewer", "log-viewer", "logviewer"],
     "homepage":    "https://github.com/ARCANEDEV/LogViewer",
     "authors": [
         {
@@ -16,14 +16,14 @@
     "require": {
         "php": "^8.2",
         "ext-json": "*",
-        "arcanedev/support": "^11.0",
+        "buriti8/support": "^12.0",
         "psr/log": "^1.0|^2.0|^3.0"
     },
     "require-dev": {
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "mockery/mockery": "^1.6",
-        "orchestra/testbench-core": "^9.0",
-        "phpunit/phpunit": "^10.5"
+        "orchestra/testbench-core": "^10.0",
+        "phpunit/phpunit": "^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -42,9 +42,6 @@
         "test:cov": "phpunit --coverage-html build/coverage"
     },
     "extra": {
-        "branch-alias": {
-            "dev-develop": "11.x-dev"
-        },
         "laravel": {
             "providers": [
                 "Arcanedev\\LogViewer\\LogViewerServiceProvider",
