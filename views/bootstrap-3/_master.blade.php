@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name')}} | Log</title>
     <meta name="description" content="LogViewer">
-    <meta name="author" content="ARCANEDEV">
+    <meta name="author" content="buriti8 (fork of ARCANEDEV/LogViewer)">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700|Source+Sans+Pro:400,600' rel='stylesheet' type='text/css'>
@@ -322,7 +322,7 @@
                 LogViewer - <span class="label label-info">version {{ log_viewer()->version() }}</span>
             </p>
             <p class="text-muted pull-right">
-                Created with <i class="fa fa-heart"></i> by ARCANEDEV <sup>&copy;</sup>
+                Fork by buriti8 of <a href="https://github.com/ARCANEDEV/LogViewer" target="_blank" rel="noopener">ARCANEDEV LogViewer</a> <i class="fa fa-heart"></i>
             </p>
         </div>
     </footer>

@@ -28,6 +28,10 @@ class LogViewerRoute extends RouteRegistrar
 
         $this->group($attributes, function() {
             $this->name('log-viewer::')->group(function () {
+                $this->get('assets/{path}', [LogViewerController::class, 'asset'])
+                     ->where('path', '.+')
+                     ->name('assets'); // log-viewer::assets
+
                 $this->get('/', [LogViewerController::class, 'index'])
                      ->name('dashboard'); // log-viewer::dashboard
 
@@ -44,6 +48,9 @@ class LogViewerRoute extends RouteRegistrar
         $this->prefix('logs')->name('logs.')->group(function() {
             $this->get('/', [LogViewerController::class, 'listLogs'])
                  ->name('list'); // log-viewer::logs.list
+
+            $this->post('clear', [LogViewerController::class, 'clear'])
+                 ->name('clear'); // log-viewer::logs.clear
 
             $this->delete('delete', [LogViewerController::class, 'delete'])
                  ->name('delete'); // log-viewer::logs.delete

@@ -8,3 +8,5 @@
 .DS_Store
 Thumbs.db
 .phpunit.result.cache
+/node_modules
+/dist/mix-manifest.json

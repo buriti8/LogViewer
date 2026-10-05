@@ -49,3 +49,20 @@ if ( ! function_exists('log_styler')) {
         return app(Contracts\Utilities\LogStyler::class);
     }
 }
+
+if ( ! function_exists('log_viewer_asset')) {
+    /**
+     * Get the URL of an asset compiled and served by the package.
+     *
+     * @param  string  $path
+     *
+     * @return string
+     */
+    function log_viewer_asset(string $path): string
+    {
+        $file    = __DIR__.'/dist/'.$path;
+        $version = is_file($file) ? filemtime($file) : 0;
+
+        return route('log-viewer::assets', ['path' => $path]).'?v='.$version;
+    }
+}

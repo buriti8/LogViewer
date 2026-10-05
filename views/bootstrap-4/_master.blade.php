@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="LogViewer">
-    <meta name="author" content="ARCANEDEV">
+    <meta name="author" content="buriti8 (fork of ARCANEDEV/LogViewer)">
     <title>{{ config('app.name')}} | Log</title>
     {{-- Styles --}}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -253,7 +253,7 @@
                 LogViewer - <span class="badge badge-info">version {{ log_viewer()->version() }}</span>
             </p>
             <p class="text-muted pull-right">
-                Created with <i class="fa fa-heart"></i> by ARCANEDEV <sup>&copy;</sup>
+                Fork by buriti8 of <a href="https://github.com/ARCANEDEV/LogViewer" target="_blank" rel="noopener">ARCANEDEV LogViewer</a> <i class="fa fa-heart"></i>
             </p>
         </div>
     </footer>

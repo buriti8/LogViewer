@@ -1,0 +1,165 @@
+// Bootstrap
+@import "~bootstrap/scss/bootstrap";
+
+// Font Awesome
+@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+@import "~@fortawesome/fontawesome-free/scss/regular";
+@import "~@fortawesome/fontawesome-free/scss/solid";
+@import "~@fortawesome/fontawesome-free/scss/brands";
+@import "~@fortawesome/fontawesome-free/scss/v4-shims";
+
+// Log viewer
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    font-size: .875rem;
+    margin-bottom: 60px;
+}
+
+.main-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    background-color: #E8EAF6;
+}
+
+.main-footer p {
+    margin-bottom: 0;
+}
+
+.main-footer .fa.fa-heart {
+    color: #C62828;
+}
+
+.page-header {
+    border-bottom: 1px solid #8a8a8a;
+}
+
+/*
+ * Navbar
+ */
+
+.navbar-brand {
+    padding: .75rem 1rem;
+    font-size: 1rem;
+}
+
+.navbar-nav .nav-link {
+    padding-right: .5rem;
+    padding-left: .5rem;
+}
+
+/*
+ * Boxes
+ */
+
+.box {
+    display: block;
+    padding: 0;
+    min-height: 70px;
+    background: #fff;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    border-radius: .25rem;
+}
+
+.box > .box-icon > i,
+.box .box-content .box-text,
+.box .box-content .box-number {
+    color: #FFF;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.box > .box-icon {
+    border-radius: 2px 0 0 2px;
+    display: block;
+    float: left;
+    height: 70px; width: 70px;
+    text-align: center;
+    font-size: 40px;
+    line-height: 70px;
+    background: rgba(0,0,0,0.2);
+}
+
+.box .box-content {
+    padding: 5px 10px;
+    margin-left: 70px;
+}
+
+.box .box-content .box-text {
+    display: block;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+
+.box .box-content .box-number {
+    display: block;
+}
+
+.box .box-content .progress {
+    background: rgba(0,0,0,0.2);
+    margin: 5px -10px 5px -10px;
+}
+
+.box .box-content .progress .progress-bar {
+    background-color: #FFF;
+}
+
+/*
+ * Log Menu
+ */
+
+.log-menu .list-group-item.disabled {
+    cursor: not-allowed;
+}
+
+.log-menu .list-group-item.disabled .level-name {
+    color: #D1D1D1;
+}
+
+/*
+ * Log Entry
+ */
+
+.stack-content {
+    color: #AE0E0E;
+    font-family: consolas, Menlo, Courier, monospace;
+    white-space: pre-line;
+    font-size: .8rem;
+}
+
+/*
+ * Pagination
+ */
+
+.table-pagination {
+    align-items: center;
+    padding: 0 .75rem;
+}
+
+.total_register .page-link {
+    display: inline;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+.table-pagination .pagination {
+    justify-content: flex-end;
+    margin-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+    .table-pagination .pagination {
+        justify-content: flex-start;
+        margin-top: .5rem;
+    }
+}

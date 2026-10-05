@@ -1,16 +1,25 @@
 {
     "name":        "buriti8/log-viewer",
-    "description": "Fork from arcanedev/log-viewer. Provides a Log Viewer for Laravel",
+    "description": "Log Viewer for Laravel with compiled assets included. Fork of arcanedev/log-viewer",
     "keywords":    ["buriti8", "arcanedev", "arcanesoft", "laravel", "log", "log viewer", "log-viewer", "logviewer"],
-    "homepage":    "https://github.com/ARCANEDEV/LogViewer",
+    "homepage":    "https://github.com/buriti8/LogViewer",
     "authors": [
+        {
+            "name":     "buriti8",
+            "homepage": "https://github.com/buriti8",
+            "role":     "Maintainer"
+        },
         {
             "name":     "ARCANEDEV",
             "email":    "arcanedev.maroc@gmail.com",
             "homepage": "https://github.com/arcanedev-maroc",
-            "role":     "Developer"
+            "role":     "Original author"
         }
     ],
+    "support": {
+        "issues": "https://github.com/buriti8/LogViewer/issues",
+        "source": "https://github.com/buriti8/LogViewer"
+    },
     "type":    "library",
     "license": "MIT",
     "require": {

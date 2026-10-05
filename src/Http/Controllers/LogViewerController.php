@@ -198,6 +198,46 @@ class LogViewerController extends Controller
         ]);
     }
 
+    /**
+     * Empty the contents of a log file without deleting it.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function clear(Request $request)
+    {
+        $date = $request->validate(['date' => ['required', 'date_format:Y-m-d']])['date'];
+
+        file_put_contents($this->getLogOrFail($date)->getPath(), '');
+
+        return redirect()->back(fallback: route('log-viewer::logs.list'));
+    }
+
+    /**
+     * Serve a compiled asset (css, js, webfonts) shipped with the package.
+     *
+     * @param  string  $path
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function asset(string $path)
+    {
+        $file = realpath(dirname(__DIR__, 3).'/dist/'.$path);
+
+        abort_unless(
+            preg_match('#^(css|js|webfonts)/[\w.-]+$#', $path) === 1 && $file !== false && is_file($file),
+            404
+        );
+
+        $types = ['css' => 'text/css', 'js' => 'text/javascript', 'woff2' => 'font/woff2', 'woff' => 'font/woff', 'ttf' => 'font/ttf'];
+
+        return response()->file($file, [
+            'Content-Type'  => $types[pathinfo($file, PATHINFO_EXTENSION)] ?? 'application/octet-stream',
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
     /* -----------------------------------------------------------------
      |  Other Methods
      | -----------------------------------------------------------------

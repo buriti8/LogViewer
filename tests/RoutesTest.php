@@ -256,4 +256,40 @@ class RoutesTest extends TestCase
         );
         static::assertSame('Method Not Allowed', $response->exception->getMessage());
     }
+
+    /** @test */
+    public function it_serves_the_compiled_assets_of_the_package(): void
+    {
+        $this->get(route('log-viewer::assets', ['path' => 'css/log-viewer.css']))
+             ->assertSuccessful()
+             ->assertHeader('Content-Type', 'text/css; charset=UTF-8');
+
+        $this->get(route('log-viewer::assets', ['path' => 'js/log-viewer.js']))
+             ->assertSuccessful();
+
+        $this->get(route('log-viewer::assets', ['path' => 'webfonts/fa-solid-900.woff2']))
+             ->assertSuccessful();
+    }
+
+    /** @test */
+    public function it_does_not_serve_files_outside_of_the_allowed_assets(): void
+    {
+        $this->get(route('log-viewer::assets', ['path' => '../composer.json']))->assertNotFound();
+        $this->get(route('log-viewer::assets', ['path' => 'css/missing.css']))->assertNotFound();
+    }
+
+    /** @test */
+    public function it_renders_the_pages_with_the_package_assets(): void
+    {
+        $this->get(route('log-viewer::dashboard'))
+             ->assertSee(route('log-viewer::assets', ['path' => 'css/log-viewer.css']), false)
+             ->assertSee(route('log-viewer::assets', ['path' => 'js/log-viewer.js']), false);
+    }
+
+    /** @test */
+    public function it_validates_the_date_when_clearing_a_log(): void
+    {
+        $this->post(route('log-viewer::logs.clear'), ['date' => 'invalid'])
+             ->assertSessionHasErrors('date');
+    }
 }

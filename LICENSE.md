@@ -1,6 +1,7 @@
 The MIT License (MIT)
 
-Copyright (c) ARCANEDEV <arcanedev.maroc@gmail.com>
+Copyright (c) 2025 buriti8
+Copyright (c) ARCANEDEV <arcanedev.maroc@gmail.com> (original LogViewer package)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

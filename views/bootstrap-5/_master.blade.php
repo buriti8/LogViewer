@@ -4,140 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="LogViewer">
-    <meta name="author" content="ARCANEDEV">
+    <meta name="author" content="buriti8 (fork of ARCANEDEV/LogViewer)">
     <title>{{ config('app.name')}} | Log</title>
     {{-- Styles --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700|Source+Sans+Pro:400,600' rel='stylesheet' type='text/css'>
+    <link href="{{ log_viewer_asset('css/log-viewer.css') }}" rel="stylesheet">
     <style>
-        html {
-            position: relative;
-            min-height: 100%;
-        }
-
-        body {
-            font-size: .875rem;
-            margin-bottom: 60px;
-        }
-
-        .main-footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 60px;
-            line-height: 60px;
-            background-color: #E8EAF6;
-        }
-
-        .main-footer p {
-            margin-bottom: 0;
-        }
-
-        .main-footer .fa.fa-heart {
-            color: #C62828;
-        }
-
-        .page-header {
-            border-bottom: 1px solid #8a8a8a;
-        }
-
-        /*
-         * Navbar
-         */
-
-        .navbar-brand {
-            padding: .75rem 1rem;
-            font-size: 1rem;
-        }
-
-        .navbar-nav .nav-link {
-            padding-right: .5rem;
-            padding-left: .5rem;
-        }
-
-        /*
-         * Boxes
-         */
-
-        .box {
-            display: block;
-            padding: 0;
-            min-height: 70px;
-            background: #fff;
-            width: 100%;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-            border-radius: .25rem;
-        }
-
-        .box > .box-icon > i,
-        .box .box-content .box-text,
-        .box .box-content .box-number {
-            color: #FFF;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-        }
-
-        .box > .box-icon {
-            border-radius: 2px 0 0 2px;
-            display: block;
-            float: left;
-            height: 70px; width: 70px;
-            text-align: center;
-            font-size: 40px;
-            line-height: 70px;
-            background: rgba(0,0,0,0.2);
-        }
-
-        .box .box-content {
-            padding: 5px 10px;
-            margin-left: 70px;
-        }
-
-        .box .box-content .box-text {
-            display: block;
-            font-size: 1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 600;
-        }
-
-        .box .box-content .box-number {
-            display: block;
-        }
-
-        .box .box-content .progress {
-            background: rgba(0,0,0,0.2);
-            margin: 5px -10px 5px -10px;
-        }
-
-        .box .box-content .progress .progress-bar {
-            background-color: #FFF;
-        }
-
-        /*
-         * Log Menu
-         */
-
-        .log-menu .list-group-item.disabled {
-            cursor: not-allowed;
-        }
-
-        .log-menu .list-group-item.disabled .level-name {
-            color: #D1D1D1;
-        }
-
-        /*
-         * Log Entry
-         */
-
-        .stack-content {
-            color: #AE0E0E;
-            font-family: consolas, Menlo, Courier, monospace;
-            white-space: pre-line;
-            font-size: .8rem;
-        }
-
         /*
          * Colors: Badge & Infobox
          */
@@ -221,7 +92,7 @@
         <a href="{{ route('log-viewer::dashboard') }}" class="navbar-brand mr-0">
             <i class="fa fa-fw fa-book"></i> {{ config('app.name')}} | Log
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -236,6 +107,13 @@
                         <i class="fa fa-archive"></i> @lang('Logs')
                     </a>
                 </li>
+                @if (Route::has('pulse'))
+                <li class="nav-item">
+                    <a href="{{ route('pulse') }}" class="nav-link" target="_blank">
+                        <i class="fa fa-heartbeat"></i> @lang('Pulse')
+                    </a>
+                </li>
+                @endif
             </ul>
         </div>
     </nav>
@@ -246,21 +124,8 @@
         </main>
     </div>
 
-    {{-- Footer --}}
-    <footer class="main-footer">
-        <div class="container-fluid">
-            <p class="text-muted pull-left">
-                LogViewer - <span class="badge text-bg-info">version {{ log_viewer()->version() }}</span>
-            </p>
-            <p class="text-muted pull-right">
-                Created with <i class="fa fa-heart"></i> by ARCANEDEV <sup>&copy;</sup>
-            </p>
-        </div>
-    </footer>
-
     {{-- Scripts --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" integrity="sha512-SIMGYRUjwY8+gKg7nn9EItdD8LCADSDfJNutF9TPrvEo86sQmFMh6MyralfIyhADlajSxqc7G0gs7+MwWF/ogQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ log_viewer_asset('js/log-viewer.js') }}"></script>
     <script>
         function ready(fn) {
             if (document.readyState !== 'loading'){
