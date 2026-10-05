@@ -84,9 +84,11 @@ This fork keeps the original API, namespace (`Arcanedev\LogViewer`) and configur
   - **Pulse link:** the navbar shows a link to Laravel Pulse when the `pulse` route exists.
   - **Bootstrap 5 views** refreshed, with Spanish translations (`es`).
 
-## Development
+## Development (only for contributors)
 
-The assets are built with [Laravel Mix](https://laravel-mix.com/) from `resources/js` and `resources/sass` into `dist/`, which is committed. Only needed if you want to change the styles or scripts of the package:
+> **You do NOT need Node or `npm` to use this package.** `composer require buriti8/log-viewer` already includes the compiled assets. This section is only for people who want to modify the package itself.
+
+To change the package styles or scripts, edit `resources/js` / `resources/sass` and rebuild `dist/` with [Laravel Mix](https://laravel-mix.com/):
 
 ```bash
 npm install
@@ -114,9 +116,9 @@ If you discover any security related issues, please report them privately throug
 
 ## PREVIEW
 
-![Dashboard](https://_screenshots/1-dashboard.png)
-![Logs list](https://_screenshots/2-logs-list.png)
-![Single log](https://_screenshots/3-single-log.png)
+![Dashboard](https://raw.githubusercontent.com/buriti8/LogViewer/master/_screenshots/1-dashboard.png)
+![Logs list](https://raw.githubusercontent.com/buriti8/LogViewer/master/_screenshots/2-logs-list.png)
+![Single log](https://raw.githubusercontent.com/buriti8/LogViewer/master/_screenshots/3-single-log.png)
 
 [badge_laravel]:      https://img.shields.io/badge/Laravel-5.x%20to%2012.x-orange.svg?style=flat-square
 [badge_license]:      https://img.shields.io/packagist/l/buriti8/log-viewer.svg?style=flat-square
