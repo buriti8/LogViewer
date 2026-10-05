@@ -35,15 +35,22 @@ return [
     /* -----------------------------------------------------------------
      |  Theme
      | -----------------------------------------------------------------
-     |  Supported themes :
+     |  Supported theme :
      |    'bootstrap-5'
-     |    'bootstrap-4'
-     |    'bootstrap-3'
      |
      |  You can make your own theme by adding a folder to the views directory and specifying it here.
      */
 
     'theme'         => 'bootstrap-5',
+
+    /* -----------------------------------------------------------------
+     |  Favicon
+     | -----------------------------------------------------------------
+     |  Path (relative to your public folder) of the icon shown in the browser tab,
+     |  e.g. 'img/favicon.png'. When null, the browser uses the /favicon.ico of your project.
+     */
+
+    'favicon'       => null,
 
     /* -----------------------------------------------------------------
      |  Route settings

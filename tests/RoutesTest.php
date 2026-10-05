@@ -287,6 +287,16 @@ class RoutesTest extends TestCase
     }
 
     /** @test */
+    public function it_uses_the_configured_favicon(): void
+    {
+        $this->get(route('log-viewer::dashboard'))->assertDontSee('rel="icon"', false);
+
+        config(['log-viewer.favicon' => 'img/favicon.png']);
+
+        $this->get(route('log-viewer::dashboard'))->assertSee('rel="icon" href="'.asset('img/favicon.png').'"', false);
+    }
+
+    /** @test */
     public function it_validates_the_date_when_clearing_a_log(): void
     {
         $this->post(route('log-viewer::logs.clear'), ['date' => 'invalid'])

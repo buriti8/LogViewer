@@ -6,6 +6,9 @@
     <meta name="description" content="LogViewer">
     <meta name="author" content="buriti8 (fork of ARCANEDEV/LogViewer)">
     <title>{{ config('app.name')}} | Log</title>
+    @if (config('log-viewer.favicon'))
+    <link rel="icon" href="{{ asset(config('log-viewer.favicon')) }}">
+    @endif
     {{-- Styles --}}
     <link href="{{ log_viewer_asset('css/log-viewer.css') }}" rel="stylesheet">
     <style>
