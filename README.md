@@ -114,9 +114,9 @@ If you discover any security related issues, please report them privately throug
 
 ## PREVIEW
 
-![Dashboard](https://_screenshots/1-dashboard.jpg)
-![Logs list](https://_screenshots/2-logs-list.jpg)
-![Single log](https://_screenshots/3-single-log.jpg)
+![Dashboard](https://_screenshots/1-dashboard.png)
+![Logs list](https://_screenshots/2-logs-list.png)
+![Single log](https://_screenshots/3-single-log.png)
 
 [badge_laravel]:      https://img.shields.io/badge/Laravel-5.x%20to%2012.x-orange.svg?style=flat-square
 [badge_license]:      https://img.shields.io/packagist/l/buriti8/log-viewer.svg?style=flat-square
