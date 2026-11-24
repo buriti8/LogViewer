@@ -260,7 +260,7 @@ class LogViewerController extends Controller
      */
     public function clear(Request $request)
     {
-        $date = $request->validate(['date' => ['required', 'date_format:Y-m-d']])['date'];
+        $date = $request->validate(['date' => ['required', 'string', \Illuminate\Validation\Rule::in($this->logViewer->dates())]])['date'];
 
         file_put_contents($this->getLogOrFail($date)->getPath(), '');
 

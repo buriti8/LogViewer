@@ -282,6 +282,39 @@ class FilesystemTest extends TestCase
     }
 
     /** @test */
+    public function it_lists_rotated_extra_files(): void
+    {
+        $path = storage_path('logs');
+        file_put_contents($path.DIRECTORY_SEPARATOR.'worker.log', "a\n");
+        file_put_contents($path.DIRECTORY_SEPARATOR.'worker.log.1', "b\n");
+        file_put_contents($path.DIRECTORY_SEPARATOR.'worker.log.2.gz', 'x');
+
+        $this->filesystem->setPath($path)->setExtraPatterns(['worker.log']);
+
+        $dates = $this->filesystem->extraDates();
+
+        static::assertContains('worker.log', $dates);
+        static::assertContains('worker.log.1', $dates);
+        static::assertNotContains('worker.log.2.gz', $dates);
+
+        foreach (['worker.log', 'worker.log.1', 'worker.log.2.gz'] as $f) {
+            @unlink($path.DIRECTORY_SEPARATOR.$f);
+        }
+    }
+
+    /** @test */
+    public function it_parses_free_form_content_as_entries(): void
+    {
+        $raw = "  2026-10-14 08:04:12 Jobs\RunEvent ..... RUNNING\n  2026-10-14 08:04:13 Jobs\RunEvent ... 44ms DONE\n  2026-10-14 08:04:14 Jobs\X FAILED\n";
+
+        $entries = \Arcanedev\LogViewer\Entities\LogEntryCollection::load($raw, time());
+
+        static::assertCount(3, $entries);
+        static::assertSame(1, $entries->filterByLevel('error')->count());
+        static::assertSame(3, $entries->stats()['all']);
+    }
+
+    /** @test */
     public function it_can_set_and_get_pattern(): void
     {
         static::assertSame(

@@ -27,10 +27,10 @@ class LogEntryCollection extends LazyCollection
      *
      * @return self
      */
-    public static function load($raw)
+    public static function load($raw, ?int $fallbackTimestamp = null)
     {
-        return new static(function () use ($raw) {
-            foreach (LogParser::parse($raw) as $entry) {
+        return new static(function () use ($raw, $fallbackTimestamp) {
+            foreach (LogParser::parse($raw, $fallbackTimestamp) as $entry) {
                 list($level, $header, $stack) = array_values($entry);
 
                 yield new LogEntry($level, $header, $stack);

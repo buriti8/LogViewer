@@ -47,7 +47,7 @@ class LogParser
      *
      * @return array
      */
-    public static function parse($raw)
+    public static function parse($raw, ?int $fallbackTimestamp = null)
     {
         static::$parsed          = [];
         list($headings, $data) = static::parseRawData($raw);
@@ -66,7 +66,105 @@ class LogParser
 
         unset($headings, $data);
 
+        if (empty(static::$parsed) && ! is_null($fallbackTimestamp) && trim((string) $raw) !== '') {
+            return static::parseGeneric((string) $raw, $fallbackTimestamp);
+        }
+
         return array_reverse(static::$parsed);
+    }
+
+    /**
+     * Parse any non Laravel/Monolog formatted content (queue workers, supervisor,
+     * nginx, plain text...). Every line becomes an entry; when lines carry a
+     * "YYYY-MM-DD HH:MM:SS" prefix, the lines without one are attached to the
+     * previous entry as its stack.
+     *
+     * @param  string  $raw
+     * @param  int     $fallbackTimestamp  Used when a line has no date (file modification time).
+     *
+     * @return array
+     */
+    public static function parseGeneric(string $raw, int $fallbackTimestamp): array
+    {
+        $lines    = preg_split('/\r\n|\n|\r/', $raw);
+        $max      = (int) config('log-viewer.extra-max-lines', 5000);
+
+        // Huge free-form files (queue workers...) would exhaust memory: keep the latest lines only.
+        if ($max > 0 && count($lines) > $max) {
+            $lines = array_slice($lines, -$max);
+        }
+
+        $datedRe  = '/^\s*\[?(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})(?:[.,]\d+)?(?:Z|[+-]\d{2}:?\d{2})?\]?\s*/';
+        $hasDates = false;
+
+        foreach ($lines as $line) {
+            if (preg_match($datedRe, $line)) {
+                $hasDates = true;
+                break;
+            }
+        }
+
+        $entries  = [];
+        $last     = date('Y-m-d H:i:s', $fallbackTimestamp);
+
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+
+            $isNew = ! $hasDates || (bool) preg_match($datedRe, $line);
+
+            if ( ! $isNew && ! empty($entries)) {
+                $index = count($entries) - 1;
+                $entries[$index]['stack'] = rtrim($entries[$index]['stack'], "\n") . "\n" . $line;
+                continue;
+            }
+
+            $message = $line;
+
+            if (preg_match($datedRe, $line, $m)) {
+                $last    = $m[1].' '.$m[2];
+                $message = preg_replace($datedRe, '', $line);
+            }
+
+            $level = static::guessLevel($message);
+
+            $entries[] = [
+                'level'  => $level,
+                'header' => '['.$last.'] extra.'.strtoupper($level).': '.trim($message),
+                'stack'  => "\n",
+            ];
+        }
+
+        return array_reverse($entries);
+    }
+
+    /**
+     * Guess a log level from the content of a free-form line.
+     *
+     * @param  string  $line
+     *
+     * @return string
+     */
+    private static function guessLevel(string $line): string
+    {
+        $map = [
+            'emergency' => '/\b(emergency|panic)\b/i',
+            'critical'  => '/\b(critical|fatal)\b/i',
+            'alert'     => '/\balert\b/i',
+            'error'     => '/\b(error|fail(ed|ure)?|exception|denied)\b/i',
+            'warning'   => '/\b(warn(ing)?)\b/i',
+            'notice'    => '/\bnotice\b/i',
+            'debug'     => '/\bdebug\b/i',
+        ];
+
+        foreach ($map as $level => $regex) {
+            if (preg_match($regex, $line)) {
+                return $level;
+            }
+        }
+
+        return 'info';
     }
 
     /* -----------------------------------------------------------------

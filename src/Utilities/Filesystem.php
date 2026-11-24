@@ -241,9 +241,15 @@ class Filesystem implements FilesystemContract
 
         foreach ($this->extraPatterns as $pattern) {
             $files = array_merge($files, $this->getFiles($pattern));
+
+            // Also pick up rotated copies (worker.log.1, worker.log.2, ...).
+            $files = array_merge($files, $this->getFiles($pattern.'.[0-9]*'));
         }
 
         $files = array_values(array_unique(array_diff($files, $dated)));
+        $files = array_values(array_filter($files, function ($file) {
+            return is_file($file) && ! preg_match('/\.(gz|zip|bz2|xz|zst|tar)$/i', $file);
+        }));
 
         sort($files);
 

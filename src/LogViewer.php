@@ -209,6 +209,10 @@ class LogViewer implements LogViewerContract
      */
     public function download($date, $filename = null, $headers = [])
     {
+        if (is_null($filename) && ! preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $date)) {
+            $filename = basename($this->filesystem->path($date));
+        }
+
         if (is_null($filename)) {
             $filename = sprintf(
                 "%s{$date}.%s",

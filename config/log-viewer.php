@@ -83,6 +83,16 @@ return [
     ],
 
     /* -----------------------------------------------------------------
+     |  Max lines read from extra (free-form) log files
+     | -----------------------------------------------------------------
+     |  Extra files that are not in the Laravel/Monolog format are shown line
+     |  by line. Only their latest N lines are read to keep memory usage low
+     |  (0 = no limit).
+     */
+
+    'extra-max-lines' => 5000,
+
+    /* -----------------------------------------------------------------
      |  Log entries per page
      | -----------------------------------------------------------------
      |  This defines how many logs & entries are displayed per page.
