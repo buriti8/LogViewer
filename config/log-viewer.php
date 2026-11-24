@@ -20,6 +20,19 @@ return [
         'prefix'    => Filesystem::PATTERN_PREFIX,    // 'laravel-'
         'date'      => Filesystem::PATTERN_DATE,      // '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
         'extension' => Filesystem::PATTERN_EXTENSION, // '.log'
+
+        /*
+         * Extra (non date-based) log files to list alongside the dated ones,
+         * e.g. logs written by queue workers, Horizon, schedulers, the
+         * browser console, etc. Glob patterns, relative to `storage-path`.
+         *
+         * Set it to ['*.log'] to automatically list every other ".log" file
+         * found in the storage path (worker.log, browser.log, horizon.log...),
+         * or name specific files/patterns instead. They always keep their own
+         * "Delete" button, but are never touched by the "Delete all listed
+         * logs" button, which only removes the dated logs.
+         */
+        'extra'     => [],
     ],
 
     /* -----------------------------------------------------------------

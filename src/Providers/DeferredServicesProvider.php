@@ -112,10 +112,14 @@ class DeferredServicesProvider extends ServiceProvider implements DeferrableProv
             $config     = $app['config'];
             $filesystem = new Utilities\Filesystem($app['files'], $config->get('log-viewer.storage-path'));
 
-            return $filesystem->setPattern(
+            $filesystem->setPattern(
                 $config->get('log-viewer.pattern.prefix', FilesystemContract::PATTERN_PREFIX),
                 $config->get('log-viewer.pattern.date', FilesystemContract::PATTERN_DATE),
                 $config->get('log-viewer.pattern.extension', FilesystemContract::PATTERN_EXTENSION)
+            );
+
+            return $filesystem->setExtraPatterns(
+                (array) $config->get('log-viewer.pattern.extra', [])
             );
         });
     }

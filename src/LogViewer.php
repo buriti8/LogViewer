@@ -287,6 +287,26 @@ class LogViewer implements LogViewerContract
     }
 
     /**
+     * List the dated log files only (excludes the extra/non date-based ones).
+     *
+     * @return array
+     */
+    public function datedDates()
+    {
+        return $this->factory->datedDates();
+    }
+
+    /**
+     * List the extra (non date-based) log files only.
+     *
+     * @return array
+     */
+    public function extraDates()
+    {
+        return $this->factory->extraDates();
+    }
+
+    /**
      * Get logs count.
      *
      * @return int

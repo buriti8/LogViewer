@@ -70,6 +70,16 @@ interface Filesystem extends Patternable
      */
     public function setExtension($extension);
 
+    /**
+     * Set the extra log file patterns (e.g. `worker.log`, `horizon-*.log`)
+     * to list alongside the dated log files.
+     *
+     * @param  array  $patterns
+     *
+     * @return $this
+     */
+    public function setExtraPatterns(array $patterns);
+
     /* -----------------------------------------------------------------
      |  Main Methods
      | -----------------------------------------------------------------
@@ -90,6 +100,14 @@ interface Filesystem extends Patternable
     public function logs();
 
     /**
+     * Get the extra (non date-based) log files matched by the configured
+     * extra patterns, excluding the ones already matched by `logs()`.
+     *
+     * @return array
+     */
+    public function extraFiles();
+
+    /**
      * List the log files (Only dates).
      *
      * @param  bool  $withPaths
@@ -97,6 +115,24 @@ interface Filesystem extends Patternable
      * @return array
      */
     public function dates($withPaths = false);
+
+    /**
+     * List the dated log files only (excludes the extra/non date-based ones).
+     *
+     * @param  bool  $withPaths
+     *
+     * @return array
+     */
+    public function datedDates($withPaths = false);
+
+    /**
+     * List the extra (non date-based) log files only.
+     *
+     * @param  bool  $withPaths
+     *
+     * @return array
+     */
+    public function extraDates($withPaths = false);
 
     /**
      * Read the log.

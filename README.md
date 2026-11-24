@@ -23,6 +23,9 @@ Feel free to check out the [releases](https://github.com/buriti8/LogViewer/relea
   - Laravel `5.x` to `12.x` are supported.
   - Ready to use (Views, Routes, controllers &hellip; Out of the box) [Note: No need to publish views, compile or copy assets: the compiled CSS, JS and fonts ship with the package]
   - View, paginate, filter, download, clear and delete logs.
+  - Delete every listed log in one click (keeps today's active log); extra logs are opt-in via a checkbox.
+  - Also list extra, non date-based log files (`worker.log`, `horizon.log`, etc.), optionally.
+  - Mobile-friendly log detail view (entries stack into readable cards instead of squeezing/wrapping).
   - Load a custom logs storage path.
   - Localized log levels.
   - Logs menu/tree generator.
@@ -81,6 +84,8 @@ This fork keeps the original API, namespace (`Arcanedev\LogViewer`) and configur
 
   - **Assets included:** the compiled CSS, JS (Bootstrap 5, Chart.js) and Font Awesome fonts live in `dist/` and are served by the package itself (route `log-viewer::assets`). Nothing to publish, compile or copy in your project.
   - **Clear a log:** empty the contents of a log file without deleting it (route `log-viewer::logs.clear`). The "Delete" button is hidden for today's log.
+  - **Delete all listed logs:** a button on the Logs page deletes every log currently listed, in one click (route `log-viewer::logs.delete-all`). See [Usage](_docs/3.Usage.md).
+  - **Extra (non date-based) log files:** optionally list files like `worker.log` or `horizon.log` alongside the dated ones, with the same view/download/clear/delete actions. See [Configuration](_docs/2.Configuration.md#listing-extra-non-date-based-log-files).
   - **Pulse link:** the navbar shows a link to Laravel Pulse when the `pulse` route exists.
   - **Bootstrap 5 views** refreshed, with Spanish translations (`es`).
 
@@ -95,6 +100,69 @@ npm install
 npm run watch   # while working
 npm run prod    # before committing
 ```
+
+## Releasing a new version (for the maintainer)
+
+This package is published on [Packagist][link-packagist] and consumed by other projects (e.g. via `composer require buriti8/log-viewer`). Packagist **does not** read your code directly: it reads your **GitHub repository**, and it only updates a new tag or `dev-master` once GitHub tells it to (via a webhook) or once a week otherwise. So, for every change:
+
+1. **Commit your change** on a branch and open a Pull Request against `master` (or commit straight to `master` for small fixes).
+2. **Merge to `master`.** Packagist's GitHub webhook fires automatically on every push once it's configured (see below), and `dev-master` on Packagist updates within seconds.
+3. **Tag a release** when the change is meaningful enough for consumer projects to pick it up as a stable version (bugfix, new feature, etc.):
+
+   ```bash
+   git tag v12.0.1       # bump following semver: vMAJOR.MINOR.PATCH
+   git push origin v12.0.1
+   ```
+
+   Packagist picks up the new tag the same way (webhook), and projects that require e.g. `"buriti8/log-viewer": "^12.0"` can now `composer update buriti8/log-viewer` to get it.
+4. In the consumer project (e.g. `enruta_epm`), run:
+
+   ```bash
+   composer84 update buriti8/log-viewer
+   ```
+
+   to pull the new version, then test the change there.
+
+**When to bump which version number (`vMAJOR.MINOR.PATCH`):**
+
+  - **PATCH** (`v12.0.1` → `v12.0.2`): bug fixes, no new public behavior.
+  - **MINOR** (`v12.0.x` → `v12.1.0`): new features/config options that don't break existing usage (e.g. the "Delete all" button, the `pattern.extra` option).
+  - **MAJOR** (`v12.x.x` → `v13.0.0`): breaking changes (renamed routes/config keys, dropped PHP/Laravel support, etc.).
+
+### Keeping Packagist in sync automatically (GitHub Hook)
+
+If `https://packagist.org/packages/buriti8/log-viewer` shows *"This package is not auto-updated"*, Packagist isn't being notified on push and will only re-crawl the repository about once a week. To fix it permanently:
+
+  - **Recommended:** on [your Packagist profile settings](https://packagist.org/profile/edit), under **"GitHub account"**, click **"Connect accounts"** and authorize Packagist via GitHub OAuth. Packagist will then configure the push webhook on `buriti8/LogViewer` (and any other `buriti8/*` repo) by itself — nothing to copy/paste.
+  - **Manual alternative:** in the GitHub repository → **Settings → Webhooks → Add webhook**, with:
+    - Payload URL: `https://packagist.org/api/github?username=buriti8`
+    - Content type: `application/json`
+    - Secret: your Packagist **API Token** (find it on your [profile page](https://packagist.org/profile/))
+    - Events: just the `push` event
+
+Once set up, every `git push` (to any branch/tag) updates Packagist almost instantly — you won't need to trigger a manual update or wait for the weekly crawl.
+
+## Developing locally against this package (without publishing first)
+
+While you iterate on a change, you can make a consumer project (e.g. `enruta_epm`) use your local working copy instead of the version on GitHub/Packagist, with a Composer [`path` repository](https://getcomposer.org/doc/05-repositories.md#path):
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../packages/Laravel/LogViewer",
+            "options": { "symlink": true }
+        }
+    ],
+    "require": {
+        "buriti8/log-viewer": "dev-master"
+    },
+    "minimum-stability": "dev"
+}
+```
+
+Then run `composer84 update buriti8/log-viewer --with-all-dependencies`. Composer will symlink (junction, on Windows) the package instead of downloading it, so every change you save here is reflected immediately in the consumer app — no reinstall needed. Remember to revert these `composer.json`/`minimum-stability` changes (and run `composer84 install` again) once you're done testing, so the project goes back to consuming the published version.
 
 ## Acknowledgements
 

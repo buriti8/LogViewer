@@ -3,8 +3,13 @@
 <?php /** @var  Illuminate\Pagination\LengthAwarePaginator  $rows */ ?>
 
 @section('content')
-<div class="page-header mb-4">
+<div class="page-header mb-4 d-flex justify-content-between align-items-center">
     <h1>@lang('Logs')</h1>
+    @if ($datedCount > 0)
+    <button type="button" class="btn btn-sm btn-danger" id="delete-all-logs-btn">
+        <i class="fa fa-fw fa-trash-o"></i> @lang('Delete all listed logs')
+    </button>
+    @endif
 </div>
 
 <div class="table-responsive">
@@ -89,6 +94,36 @@
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-sm btn-warning">Limpiar</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">@lang('Cancel')</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{{-- DELETE ALL MODAL --}}
+<div class="modal fade" id="delete-all-logs-modal" tabindex="-1" aria-labelledby="delete-all-logs-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="delete-all-logs-form" action="{{ route('log-viewer::logs.delete-all') }}" method="POST">
+            @csrf
+            @method('DELETE')
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="delete-all-logs-modal-label">@lang('Delete all listed logs')</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="delete-all-logs-text">{{ __('Are you sure you want to') }} <span class="badge badge-level-error">{{ __('Delete') }}</span> {{ __('all the dated logs listed on this page') }} (<span id="delete-all-logs-count">{{ $datedCount }}</span>)?</p>
+                    @if ($extraCount > 0)
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="delete-all-include-extra" name="include_extra">
+                        <label class="form-check-label" for="delete-all-include-extra">
+                            {{ __('Also delete the :count extra (non date-based) logs listed', ['count' => $extraCount]) }}
+                        </label>
+                    </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-sm btn-danger" data-loading-text="@lang('Loading')&hellip;">@lang('Delete')</button>
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">@lang('Cancel')</button>
                 </div>
             </div>
@@ -193,6 +228,67 @@
                 deleteLogForm.querySelector('input[name=date]').value = ''
                 deleteLogModalElt.querySelector('.modal-body p').innerHTML = ''
             })
+
+            let deleteAllBtn = document.getElementById('delete-all-logs-btn')
+
+            if (deleteAllBtn) {
+                let deleteAllLogsModal = new bootstrap.Modal('div#delete-all-logs-modal')
+                let deleteAllLogsForm = document.querySelector('form#delete-all-logs-form')
+                let deleteAllSubmitBtn = new bootstrap.Button(deleteAllLogsForm.querySelector('button[type=submit]'))
+                let deleteAllIncludeExtra = document.getElementById('delete-all-include-extra')
+                let deleteAllCount = document.getElementById('delete-all-logs-count')
+                let datedCount = {{ (int) $datedCount }}
+                let extraCount = {{ (int) $extraCount }}
+
+                deleteAllBtn.addEventListener('click', () => deleteAllLogsModal.show())
+
+                if (deleteAllIncludeExtra) {
+                    deleteAllIncludeExtra.addEventListener('change', () => {
+                        deleteAllCount.textContent = deleteAllIncludeExtra.checked ? (datedCount + extraCount) : datedCount
+                    })
+                }
+
+                deleteAllLogsForm.addEventListener('submit', (event) => {
+                    event.preventDefault()
+                    deleteAllSubmitBtn.toggle('loading')
+
+                    fetch(event.currentTarget.getAttribute('action'), {
+                        method: 'DELETE',
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            'X-CSRF-TOKEN': event.currentTarget.querySelector("input[name='_token']").value,
+                            'Content-type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            include_extra: deleteAllIncludeExtra ? deleteAllIncludeExtra.checked : false,
+                        })
+                    })
+                        .then((resp) => resp.json())
+                        .then((resp) => {
+                            if (resp.result === 'success') {
+                                deleteAllLogsModal.hide()
+                                location.reload()
+                            }
+                            else {
+                                alert('AJAX ERROR ! Check the console !')
+                                console.error(resp)
+                            }
+                        })
+                        .catch((err) => {
+                            alert('AJAX ERROR ! Check the console !')
+                            console.error(err)
+                        })
+
+                    return false
+                })
+
+                if (deleteAllIncludeExtra) {
+                    deleteAllLogsModal._element.addEventListener('hidden.bs.modal', () => {
+                        deleteAllIncludeExtra.checked = false
+                        deleteAllCount.textContent = datedCount
+                    })
+                }
+            }
         })
 </script>
 @endsection

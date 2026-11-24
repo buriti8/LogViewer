@@ -264,6 +264,26 @@ class Factory implements FactoryContract
     }
 
     /**
+     * List the dated log files only (excludes the extra/non date-based ones).
+     *
+     * @return array
+     */
+    public function datedDates()
+    {
+        return $this->filesystem->datedDates();
+    }
+
+    /**
+     * List the extra (non date-based) log files only.
+     *
+     * @return array
+     */
+    public function extraDates()
+    {
+        return $this->filesystem->extraDates();
+    }
+
+    /**
      * Get logs count.
      *
      * @return int

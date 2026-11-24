@@ -83,11 +83,13 @@ class LogViewerController extends Controller
      */
     public function listLogs(Request $request)
     {
-        $stats   = $this->logViewer->statsTable();
-        $headers = $stats->header();
-        $rows    = $this->paginate($stats->rows(), $request);
+        $stats      = $this->logViewer->statsTable();
+        $headers    = $stats->header();
+        $rows       = $this->paginate($stats->rows(), $request, $this->resolvePerPage($request));
+        $datedCount = count($this->logViewer->datedDates());
+        $extraCount = count($this->logViewer->extraDates());
 
-        return $this->view('logs', compact('headers', 'rows'));
+        return $this->view('logs', compact('headers', 'rows', 'datedCount', 'extraCount'));
     }
 
     /**
@@ -104,7 +106,7 @@ class LogViewerController extends Controller
         $log     = $this->getLogOrFail($date);
         $query   = $request->get('query');
         $levels  = $this->logViewer->levelsNames();
-        $entries = $log->entries($level)->paginate($this->perPage);
+        $entries = $log->entries($level)->paginate($this->resolvePerPage($request));
 
         return $this->view('show', compact('level', 'log', 'query', 'levels', 'entries'));
     }
@@ -126,7 +128,7 @@ class LogViewerController extends Controller
         $log     = $this->getLogOrFail($date);
         $query   = $request->get('query');
         $levels  = $this->logViewer->levelsNames();
-        $entries = $this->logViewer->entries($date, $level)->paginate($this->perPage);
+        $entries = $this->logViewer->entries($date, $level)->paginate($this->resolvePerPage($request));
 
         return $this->view('show', compact('level', 'log', 'query', 'levels', 'entries'));
     }
@@ -163,7 +165,7 @@ class LogViewerController extends Controller
                     return false;
                 });
             })
-            ->paginate($this->perPage);
+            ->paginate($this->resolvePerPage($request));
 
         return $this->view('show', compact('level', 'log', 'query', 'levels', 'entries'));
     }
@@ -195,6 +197,57 @@ class LogViewerController extends Controller
 
         return response()->json([
             'result' => $this->logViewer->delete($date) ? 'success' : 'error'
+        ]);
+    }
+
+    /**
+     * Delete all the dated logs currently listed (e.g. `laravel-2024-01-01.log`).
+     * Extra/non date-based logs (configured via `log-viewer.pattern.extra`,
+     * such as `worker.log`) are only included when the request explicitly
+     * asks for it (`include_extra`); otherwise delete them individually.
+     * The active log file of the current day is kept, same as the
+     * single-delete action.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteAll(Request $request)
+    {
+        abort_unless($request->ajax(), 405, 'Method Not Allowed');
+
+        $today   = now()->toDateString();
+        $dates   = $this->logViewer->datedDates();
+
+        if ($request->boolean('include_extra')) {
+            $dates = array_merge($dates, $this->logViewer->extraDates());
+        }
+
+        $deleted = [];
+        $failed  = [];
+
+        foreach ($dates as $date) {
+            if ($date === $today) {
+                continue;
+            }
+
+            try {
+                if ($this->logViewer->delete($date)) {
+                    $deleted[] = $date;
+                }
+                else {
+                    $failed[] = $date;
+                }
+            }
+            catch (\Throwable $e) {
+                $failed[] = $date;
+            }
+        }
+
+        return response()->json([
+            'result'  => empty($failed) ? 'success' : 'error',
+            'deleted' => $deleted,
+            'failed'  => $failed,
         ]);
     }
 
@@ -264,22 +317,45 @@ class LogViewerController extends Controller
      *
      * @param  array                     $data
      * @param  \Illuminate\Http\Request  $request
+     * @param  int|null                  $perPage
      *
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    protected function paginate(array $data, Request $request)
+    protected function paginate(array $data, Request $request, $perPage = null)
     {
-        $data = new Collection($data);
-        $page = $request->get('page', 1);
-        $path = $request->url();
+        $data    = new Collection($data);
+        $page    = $request->get('page', 1);
+        $path    = $request->url();
+        $perPage = $perPage ?? $this->perPage;
 
         return new LengthAwarePaginator(
-            $data->forPage($page, $this->perPage),
+            $data->forPage($page, $perPage),
             $data->count(),
-            $this->perPage,
+            $perPage,
             $page,
             compact('path')
         );
+    }
+
+    /**
+     * Resolve the per-page value from the request (e.g. the pagination
+     * view's "items per page" selector), falling back to the configured
+     * default. Clamped to a sane range to avoid pulling an excessive
+     * number of log entries into memory at once.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     *
+     * @return int
+     */
+    protected function resolvePerPage(Request $request)
+    {
+        $perPage = (int) $request->get('per_page', $this->perPage);
+
+        if ($perPage < 1) {
+            return $this->perPage;
+        }
+
+        return min($perPage, 1000);
     }
 
     /**

@@ -143,6 +143,20 @@ interface LogViewer extends Patternable
     public function dates();
 
     /**
+     * List the dated log files only (excludes the extra/non date-based ones).
+     *
+     * @return array
+     */
+    public function datedDates();
+
+    /**
+     * List the extra (non date-based) log files only.
+     *
+     * @return array
+     */
+    public function extraDates();
+
+    /**
      * Get logs count.
      *
      * @return int

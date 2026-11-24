@@ -9,4 +9,5 @@
 Thumbs.db
 .phpunit.result.cache
 /node_modules
+/.playwright-mcp
 /dist/mix-manifest.json

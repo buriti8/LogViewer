@@ -57,6 +57,13 @@ class Filesystem implements FilesystemContract
      */
     protected $extension;
 
+    /**
+     * The extra (non date-based) log file patterns, e.g. `worker.log`, `horizon-*.log`.
+     *
+     * @var array
+     */
+    protected $extraPatterns = [];
+
     /* -----------------------------------------------------------------
      |  Constructor
      | -----------------------------------------------------------------
@@ -177,6 +184,21 @@ class Filesystem implements FilesystemContract
         return $this;
     }
 
+    /**
+     * Set the extra log file patterns (e.g. `worker.log`, `horizon-*.log`)
+     * to list alongside the dated log files.
+     *
+     * @param  array  $patterns
+     *
+     * @return $this
+     */
+    public function setExtraPatterns(array $patterns)
+    {
+        $this->extraPatterns = $patterns;
+
+        return $this;
+    }
+
     /* -----------------------------------------------------------------
      |  Main Methods
      | -----------------------------------------------------------------
@@ -203,6 +225,32 @@ class Filesystem implements FilesystemContract
     }
 
     /**
+     * Get the extra (non date-based) log files matched by the configured
+     * extra patterns, excluding the ones already matched by `logs()`.
+     *
+     * @return array
+     */
+    public function extraFiles()
+    {
+        if (empty($this->extraPatterns)) {
+            return [];
+        }
+
+        $dated = $this->logs();
+        $files = [];
+
+        foreach ($this->extraPatterns as $pattern) {
+            $files = array_merge($files, $this->getFiles($pattern));
+        }
+
+        $files = array_values(array_unique(array_diff($files, $dated)));
+
+        sort($files);
+
+        return $files;
+    }
+
+    /**
      * List the log files (Only dates).
      *
      * @param  bool  $withPaths
@@ -211,7 +259,46 @@ class Filesystem implements FilesystemContract
      */
     public function dates($withPaths = false)
     {
+        $files = array_merge(array_reverse($this->logs()), $this->extraFiles());
+        $dates = $this->extractDates($files);
+
+        if ($withPaths) {
+            $dates = array_combine($dates, $files); // [date => file]
+        }
+
+        return $dates;
+    }
+
+    /**
+     * List the dated log files only (excludes the extra/non date-based ones).
+     *
+     * @param  bool  $withPaths
+     *
+     * @return array
+     */
+    public function datedDates($withPaths = false)
+    {
         $files = array_reverse($this->logs());
+        $dates = $this->extractDates($files);
+
+        if ($withPaths) {
+            $dates = array_combine($dates, $files); // [date => file]
+        }
+
+        return $dates;
+    }
+
+    /**
+     * List the extra (non date-based) log files only, keyed the same way
+     * `dates()` keys them (i.e. by their own basename).
+     *
+     * @param  bool  $withPaths
+     *
+     * @return array
+     */
+    public function extraDates($withPaths = false)
+    {
+        $files = $this->extraFiles();
         $dates = $this->extractDates($files);
 
         if ($withPaths) {
@@ -318,11 +405,19 @@ class Filesystem implements FilesystemContract
     {
         $path = $this->storagePath.DIRECTORY_SEPARATOR.$this->prefixPattern.$date.$this->extension;
 
-        if ( ! $this->filesystem->exists($path)) {
-            throw FilesystemException::invalidPath($path);
+        if ($this->filesystem->exists($path)) {
+            return realpath($path);
         }
 
-        return realpath($path);
+        // Not a dated log: it may be one of the extra (non date-based) log
+        // files, identified by their own basename (e.g. "worker.log").
+        $extraPath = realpath($this->storagePath.DIRECTORY_SEPARATOR.basename($date));
+
+        if ($extraPath !== false && in_array($extraPath, $this->extraFiles(), true)) {
+            return $extraPath;
+        }
+
+        throw FilesystemException::invalidPath($path);
     }
 
     /**

@@ -28,8 +28,13 @@
     "Cancel": "Cancelar",
     "Delete log file": "Eliminar archivo de Log",
     "Are you sure you want to delete this log file: :date ?": "¿Está seguro de que desea eliminar este archivo de Log: :date ?",
+    "Are you sure you want to": "¿Está seguro de que desea",
     "This File": "este archivo de Log",
     "Type here to search": "Escriba aquí para buscar",
     ":count results": ":count resultados",
-    "entries": "entradas"
+    "entries": "entradas",
+    "Loading": "Cargando",
+    "Delete all listed logs": "Eliminar todos",
+    "all the dated logs listed on this page": "todos los logs por fecha",
+    "Also delete the :count extra (non date-based) logs listed": "También eliminar los :count logs extra"
 }

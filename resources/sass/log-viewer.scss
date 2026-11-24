@@ -119,6 +119,79 @@ body {
 }
 
 /*
+ * Log info grid (file path, entries, size, dates)
+ */
+
+.log-info-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.5rem;
+    padding: .75rem 1rem;
+}
+
+.log-info-item {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.log-info-item-wide {
+    flex-basis: 100%;
+}
+
+.log-info-label {
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+/*
+ * Responsive (stacked) log entries table
+ */
+
+@media (max-width: 767.98px) {
+    #entries thead {
+        display: none;
+    }
+
+    #entries tbody tr {
+        display: block;
+        padding: .5rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    #entries tbody tr.stack-entry-row {
+        padding-top: 0;
+        border-bottom: none;
+    }
+
+    #entries tbody td {
+        display: block;
+        width: 100% !important;
+        max-width: 100%;
+        border: 0 !important;
+        padding: .2rem .25rem !important;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    #entries tbody td[data-label]:not([data-label=""])::before {
+        content: attr(data-label) ": ";
+        display: inline-block;
+        font-weight: 600;
+        color: #6c757d;
+        margin-right: .25rem;
+    }
+
+    #entries tbody td.text-end {
+        text-align: left !important;
+    }
+
+    #entries tbody td.stack {
+        padding-top: 0 !important;
+    }
+}
+
+/*
  * Pagination
  */
 

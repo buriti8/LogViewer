@@ -195,6 +195,93 @@ class FilesystemTest extends TestCase
     }
 
     /** @test */
+    public function it_returns_no_extra_files_by_default(): void
+    {
+        static::assertSame([], $this->filesystem->extraFiles());
+    }
+
+    /** @test */
+    public function it_can_list_extra_non_dated_log_files(): void
+    {
+        $this->filesystem->setExtraPatterns(['laravel.log']);
+
+        $files = $this->filesystem->extraFiles();
+
+        static::assertCount(1, $files);
+        static::assertStringEndsWith('laravel.log', $files[0]);
+    }
+
+    /** @test */
+    public function it_excludes_already_dated_logs_from_extra_files(): void
+    {
+        $this->filesystem->setExtraPatterns(['*.log']);
+
+        $files = $this->filesystem->extraFiles();
+
+        // 5 files total, 2 are already matched by the dated pattern.
+        static::assertCount(3, $files);
+
+        foreach ($files as $file) {
+            static::assertStringNotContainsString('laravel-2015-01-01.log', $file);
+            static::assertStringNotContainsString('laravel-2015-01-02.log', $file);
+        }
+    }
+
+    /** @test */
+    public function it_lists_extra_files_in_dates(): void
+    {
+        $this->filesystem->setExtraPatterns(['laravel.log']);
+
+        $dates = $this->filesystem->dates();
+
+        static::assertContains('laravel.log', $dates);
+    }
+
+    /** @test */
+    public function it_excludes_extra_files_from_dated_dates(): void
+    {
+        $this->filesystem->setExtraPatterns(['laravel.log']);
+
+        static::assertContains('laravel.log', $this->filesystem->dates());
+        static::assertNotContains('laravel.log', $this->filesystem->datedDates());
+
+        foreach ($this->filesystem->datedDates() as $date) {
+            static::assertDate($date);
+        }
+    }
+
+    /** @test */
+    public function it_can_get_extra_dates_only(): void
+    {
+        $this->filesystem->setExtraPatterns(['laravel.log']);
+
+        $extraDates = $this->filesystem->extraDates();
+
+        static::assertSame(['laravel.log'], $extraDates);
+
+        foreach ($this->filesystem->datedDates() as $date) {
+            static::assertNotContains($date, $extraDates);
+        }
+    }
+
+    /** @test */
+    public function it_can_read_and_delete_an_extra_log_file(): void
+    {
+        $this->filesystem->setExtraPatterns(['laravel.log']);
+
+        static::assertNotEmpty($this->filesystem->read('laravel.log'));
+
+        static::createDummyLog('extra-test', $path = storage_path('logs'));
+        rename($path.DIRECTORY_SEPARATOR.'laravel-extra-test.log', $path.DIRECTORY_SEPARATOR.'worker.log');
+
+        $this->filesystem
+            ->setPath($path)
+            ->setExtraPatterns(['worker.log']);
+
+        static::assertTrue($this->filesystem->delete('worker.log'));
+    }
+
+    /** @test */
     public function it_can_set_and_get_pattern(): void
     {
         static::assertSame(

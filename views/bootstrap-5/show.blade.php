@@ -58,33 +58,27 @@
                     @endif
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-condensed mb-0">
-                    <tbody>
-                        <tr>
-                            <td>@lang('File path') :</td>
-                            <td colspan="7">{{ $log->getPath() }}</td>
-                        </tr>
-                        <tr>
-                            <td>@lang('Log entries') :</td>
-                            <td>
-                                <span class="badge text-bg-primary">{{ $entries->total() }}</span>
-                            </td>
-                            <td>@lang('Size') :</td>
-                            <td>
-                                <span class="badge text-bg-primary">{{ $log->size() }}</span>
-                            </td>
-                            <td>@lang('Created at') :</td>
-                            <td>
-                                <span class="badge text-bg-primary">{{ $log->createdAt() }}</span>
-                            </td>
-                            <td>@lang('Updated at') :</td>
-                            <td>
-                                <span class="badge text-bg-primary">{{ $log->updatedAt() }}</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="log-info-grid">
+                <div class="log-info-item log-info-item-wide">
+                    <span class="log-info-label">@lang('File path') :</span>
+                    <span class="log-info-value text-break">{{ $log->getPath() }}</span>
+                </div>
+                <div class="log-info-item">
+                    <span class="log-info-label">@lang('Log entries') :</span>
+                    <span class="badge text-bg-primary">{{ $entries->total() }}</span>
+                </div>
+                <div class="log-info-item">
+                    <span class="log-info-label">@lang('Size') :</span>
+                    <span class="badge text-bg-primary">{{ $log->size() }}</span>
+                </div>
+                <div class="log-info-item">
+                    <span class="log-info-label">@lang('Created at') :</span>
+                    <span class="badge text-bg-primary">{{ $log->createdAt() }}</span>
+                </div>
+                <div class="log-info-item">
+                    <span class="log-info-label">@lang('Updated at') :</span>
+                    <span class="badge text-bg-primary">{{ $log->updatedAt() }}</span>
+                </div>
             </div>
             <div class="card-footer">
                 {{-- Search --}}
@@ -134,23 +128,23 @@
                         @forelse($entries as $key => $entry)
                         <?php /** @var  Arcanedev\LogViewer\Entities\LogEntry  $entry */ ?>
                         <tr>
-                            <td>
+                            <td data-label="@lang('ENV')">
                                 <span class="badge badge-env">{{ $entry->env }}</span>
                             </td>
-                            <td>
+                            <td data-label="@lang('Level')">
                                 <span class="badge badge-level-{{ $entry->level }}">
                                     {!! $entry->level() !!}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="@lang('Time')">
                                 <span class="badge text-bg-secondary">
                                     {{ $entry->datetime->format('H:i:s') }}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="@lang('Header')">
                                 {{ $entry->header }}
                             </td>
-                            <td class="text-end">
+                            <td class="text-end" data-label="@lang('Actions')">
                                 @if ($entry->hasStack())
                                 <a class="btn btn-sm btn-light" role="button" data-bs-toggle="collapse"
                                     href="#log-stack-{{ $key }}" aria-expanded="false"
@@ -169,7 +163,7 @@
                             </td>
                         </tr>
                         @if ($entry->hasStack() || $entry->hasContext())
-                        <tr>
+                        <tr class="stack-entry-row">
                             <td colspan="5" class="stack py-0">
                                 @if ($entry->hasStack())
                                 <div class="stack-content collapse" id="log-stack-{{ $key }}">

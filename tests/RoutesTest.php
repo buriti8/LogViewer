@@ -42,6 +42,24 @@ class RoutesTest extends TestCase
     }
 
     /** @test */
+    public function it_can_paginate_the_logs_list_with_a_custom_per_page(): void
+    {
+        $path = storage_path('logs');
+
+        static::createDummyLog('2021-01-01', $path);
+        static::createDummyLog('2021-01-02', $path);
+        static::createDummyLog('2021-01-03', $path);
+
+        $this->app['config']->set(['log-viewer.storage-path' => $path]);
+
+        $response = $this->get(route('log-viewer::logs.list').'?per_page=2');
+        $response->assertSuccessful();
+
+        // 2 rows on this page, plus the header row of dates.
+        static::assertSame(2, substr_count($response->getContent(), 'text-bg-primary'));
+    }
+
+    /** @test */
     public function it_can_show_a_log_page(): void
     {
         $date = '2015-01-01';
@@ -54,6 +72,32 @@ class RoutesTest extends TestCase
             $response->getContent()
         );
         // TODO: Add more assertion => list all log entries
+    }
+
+    /** @test */
+    public function it_can_show_a_log_page_with_a_custom_per_page(): void
+    {
+        static::createDummyLog($date = date('Y-m-d'), $path = storage_path('logs')); // 8 entries
+
+        $this->app['config']->set(['log-viewer.storage-path' => $path]);
+
+        $response = $this->get(route('log-viewer::logs.show', [$date]).'?per_page=3');
+        $response->assertSuccessful();
+
+        static::assertStringContainsString('Page 1 of 3', $response->getContent());
+    }
+
+    /** @test */
+    public function it_falls_back_to_the_configured_per_page_without_the_query_param(): void
+    {
+        static::createDummyLog($date = date('Y-m-d'), $path = storage_path('logs')); // 8 entries
+
+        $this->app['config']->set(['log-viewer.storage-path' => $path]);
+
+        $response = $this->get(route('log-viewer::logs.show', [$date]));
+        $response->assertSuccessful();
+
+        static::assertStringNotContainsString('Page 1 of', $response->getContent());
     }
 
     /** @test */
@@ -219,6 +263,86 @@ class RoutesTest extends TestCase
                 'result' => 'success',
             ])
         ;
+    }
+
+    /** @test */
+    public function it_can_delete_all_listed_logs(): void
+    {
+        static::createDummyLog('2020-02-02', $path = storage_path('logs'));
+        static::createDummyLog(date('Y-m-d'), $path); // today's log must be kept
+
+        $this->app['config']->set(['log-viewer.storage-path' => $path]);
+
+        $response = $this
+            ->call('DELETE', route('log-viewer::logs.delete-all'), [], [], [], ['HTTP_X-Requested-With' => 'XMLHttpRequest'])
+            ->assertSuccessful();
+
+        $json = $response->json();
+
+        static::assertSame('success', $json['result']);
+        static::assertContains('2020-02-02', $json['deleted']);
+        static::assertNotContains(date('Y-m-d'), $json['deleted']);
+        static::assertFileDoesNotExist($path.DIRECTORY_SEPARATOR.'laravel-2020-02-02.log');
+        static::assertFileExists($path.DIRECTORY_SEPARATOR.'laravel-'.date('Y-m-d').'.log');
+    }
+
+    /** @test */
+    public function it_never_deletes_extra_logs_with_delete_all(): void
+    {
+        static::createDummyLog('2020-02-02', $path = storage_path('logs'));
+        file_put_contents($path.DIRECTORY_SEPARATOR.'worker.log', 'some worker log content');
+
+        $this->app['config']->set([
+            'log-viewer.storage-path'    => $path,
+            'log-viewer.pattern.extra'   => ['worker.log'],
+        ]);
+
+        $response = $this
+            ->call('DELETE', route('log-viewer::logs.delete-all'), [], [], [], ['HTTP_X-Requested-With' => 'XMLHttpRequest'])
+            ->assertSuccessful();
+
+        $json = $response->json();
+
+        static::assertSame('success', $json['result']);
+        static::assertContains('2020-02-02', $json['deleted']);
+        static::assertNotContains('worker.log', $json['deleted']);
+        static::assertFileExists($path.DIRECTORY_SEPARATOR.'worker.log');
+    }
+
+    /** @test */
+    public function it_can_delete_extra_logs_too_when_include_extra_is_requested(): void
+    {
+        static::createDummyLog('2020-02-02', $path = storage_path('logs'));
+        file_put_contents($path.DIRECTORY_SEPARATOR.'worker.log', 'some worker log content');
+
+        $this->app['config']->set([
+            'log-viewer.storage-path'  => $path,
+            'log-viewer.pattern.extra' => ['worker.log'],
+        ]);
+
+        $response = $this
+            ->call('DELETE', route('log-viewer::logs.delete-all'), ['include_extra' => true], [], [], ['HTTP_X-Requested-With' => 'XMLHttpRequest'])
+            ->assertSuccessful();
+
+        $json = $response->json();
+
+        static::assertSame('success', $json['result']);
+        static::assertContains('2020-02-02', $json['deleted']);
+        static::assertContains('worker.log', $json['deleted']);
+        static::assertFileDoesNotExist($path.DIRECTORY_SEPARATOR.'worker.log');
+    }
+
+    /** @test */
+    public function it_must_throw_method_not_allowed_on_delete_all(): void
+    {
+        $response = $this->delete(route('log-viewer::logs.delete-all'));
+        $response->assertStatus(405);
+
+        static::assertInstanceOf(
+            \Symfony\Component\HttpKernel\Exception\HttpException::class,
+            $response->exception
+        );
+        static::assertSame('Method Not Allowed', $response->exception->getMessage());
     }
 
     /** @test */
